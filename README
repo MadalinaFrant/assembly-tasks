@@ -1,5 +1,3 @@
-Tema 2 IOCLA - Frant Madalina 324CB
-
 rotp:
 
 Se initializeaza eax cu 0; eax va fi indicele cu ajutorul caruia se vor parcurge
@@ -150,3 +148,96 @@ In cazul de CACHE MISS, adica tag nu a fost gasit in vectorul tags, algoritmul
 de scriere a registrului este acelasi, in acest caz i fiind to_replace, intrucat 
 octetul ce trebuie scris va fi luat de la linia to_replace (cache[i][offset] -> 
 cache[to_replace][offset]).
+
+
+albums:
+
+Algoritmul functioneaza astfel: se salveaza in eax adresa inceputului listei,
+iar in ecx n (numarul de noduri). Cu ajutorul registrului esi ce va fi folosit
+drept un index si a label-ului loop_list se va parcurge vectorul de structuri 
+reprezentand lista simplu inlantuita. Pentru fiecare nod din lista (valoarea 
+acestuia accesata prin campul val al structurii) va trebui cautat nodul ce 
+trebuie sa il succeada, actualizand legaturile (campul next al nodului curent
+devine adresa nodului ce trebuie sa il succeada). Daca nodul curent este n (n
+va fi ultimul element din lista, fiind cel mai mare), atunci campul acestuia va
+ramane NULL, deci se trece direct la urmatoarea iteratie (prin eticheta 
+next_iteration). Altfel, se trece din nou prin vector, cautand nodul cu valoarea
+egala cu valoarea nodului curent + 1. De data aceasta parcurgerea se realizeaza
+utilizand registrul edi drept index si label-ul find_next. In momentul in care a
+fost gasit nodul reprezentand succesorul celui curent se trece la eticheta 
+update_next pentru a actualiza legaturile. In cadrul acesteia se realizeaza 
+operatia "push eax" pentru a retine valoarea continuta de acesta, intrucat se va
+realiza operatia mul al carui rezultat este salvat in acest registru. Astfel, se
+realizeaza inmultirea edi * node_struct_size, retinuta in edx, iar apoi se reia 
+eax prin operatia "pop eax". Astfel, edx va fi indexul cu ajutorul caruia se va 
+accesa adresa nodului ce va fi atribuit campului next al nodului curent. Se 
+salveaza accest nod tot in edx, adaugand eax. Campul next al nodului curent va 
+deveni adresa nodului urmator, salvata in edx. Dupa parcurgerea intregului vector
+si actualizarea tuturor legaturilor trebuie actualizata adresa de inceput a 
+listei, reprezentata de adresa nodului cu valoarea 1. Pentru a realiza acest 
+lucru se parcurge din nou lista utilizand esi drept index si label-ul find_head.
+In momentul in care este gasit nodul 1, se trece in update_head, unde se 
+realizeaza urmatoarele: se retine in edx adresa nodului 1 ce va reprezenta noul
+inceput al listei, salvat in registrul eax, care reprezinta adresa de retur a 
+functiei. 
+
+
+In cadrul urmatoarelor 2 task-uri nu s-au folosit operatiile mov, enter, leave. S-a 
+lucrat numai cu stiva, asadar in locul unei operatii mov s-a realizat pe rand push 
+si pop pentru valoarea dorita.
+
+
+cmmmc:
+
+Algoritmul functioneaza astfel: se calculeaza cmmdc dintre a si b, scazandu-se 
+din cel mai mare numarul mai mic, pana acestea devin egale. In final, pentru a 
+obtine cmmmc se inmultesc a si b, apoi acest rezultat se imparte la cmmdc-ul 
+obtinut. Operatiile mul si div pastreaza rezultatul in registrul eax, care 
+reprezinta adresa de retur a functiei.
+
+
+par:
+
+Algoritmul functioneaza astfel: se parcurge sirul utilizand registrul ebx drept
+index si label-ul loop_string. Se utilizeaza esi si edi pentru a numara cate 
+paranteze la stanga, respectiv dreapta exista in sir. Se compara fiecare caracter
+din sir cu valorile ASCII ale parantezelor ( 40 pt. '(' si 41 pt. ')' ) si se
+incrementeaza, dupa caz, esi sau edi, utilizand etichetele left si right. Se 
+continua apoi parcurgerea sirului trecand in label-ul next_char. Dupa ce a fost
+parcurs tot sirul, se verifica daca esi si edi sunt egale, adica daca numarul 
+parantezelor corespunde. Se pune pe stiva, dupa caz, 0 sau 1, valoare ce apoi 
+va fi retinuta in eax, care reprezinta adresa de retur a functiei.
+
+
+words:
+
+In cadrul acestui task au fost implementate urmatoarele functii: 
+
+get_words(char *s, char **words, int number_of_words): Se parcurge sirul
+utilizand registrul edi drept index si label-ul loop_string. Se separa 
+cuvintele din sir despartite de delimitatorii dati, apeland functia strtok.
+Initial aceasta este apelata pentru sirul initial, in urmatoarele iteratii 
+fiind apelata pentru sirul NULL. Fiecare cuvant rezultat este adaugat in 
+vectorul de cuvinte, la iteratia curenta. Se iese din bucla loop_string in 
+momentul in care rezultatul functiei strtok este NULL, adica sirul a fost 
+separat in intregime, sarind la eticheta finished_words. 
+
+sort(char **words, int number_of_words, int size): Se apeleaza functia 
+qsort pentru vectorul de cuvinte dat, punand pe stiva parametrii acesteia 
+in ordinea corespunzatoare. 
+
+int compare_func(const void *p1, const void *p2): Functia intoarce un 
+numar pozitiv daca p1 > p2, negativ daca p1 < p2, respectiv 0 in caz 
+de egalitate. Cele 2 siruri vor fi comparate dupa urmatoarele criterii:
+dupa lungime, in ordine crescatoare, apoi, in cazul lungimilor egale, 
+in ordine lexicografica. Se salveaza in cate o variabila locala lungimea 
+fiecarui sir, apeland functia strlen. Aceasta functie poate modifica
+anumiti registri, asadar se realizeaza pusha inainte de apelul acesteia 
+si popa dupa pentru a asigura pastrarea nealterata a registrilor. Se 
+compara cele 2 lungimi, trecand, dupa caz, in label-ul greater (pentru 
+p1 > p2), respectiv in less (pentru p1 < p2), atribuindu-i registrului
+eax 1, respectiv -1, trecand apoi in label-ul end pentru a iesi din 
+functie. Daca lungimile celor 2 siruri sunt egale, atunci se trece in 
+label-ul lex, in cadrul caruia se apeleaza functia strcmp pentru a 
+realiza ordinea lexicografica. Rezultatul functiei strcmp va fi 
+returnat prin intermediul registrului eax. 
