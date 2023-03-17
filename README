@@ -1,0 +1,152 @@
+Tema 2 IOCLA - Frant Madalina 324CB
+
+rotp:
+
+Se initializeaza eax cu 0; eax va fi indicele cu ajutorul caruia se vor parcurge
+sirurile. ebx se reseteaza (initializeaza cu 0); acesta va fi folosit pentru a 
+retine valoarea criptata ce in final va fi atribuita lui ciphertext[i].
+Cat timp nu s-a terminat parcurgerea sirurilor (care se termina cand ecx (len, 
+adica lungimea sirurilor) devine 0, intrucat la fiecare iteratie se scade 1 din 
+acesta, deoarece sirul key este parcurs de la final la inceput), se realizeaza
+urmatoarele operatii: se scade 1 din ecx (len) (trebuie efectuat inainte de celelalte 
+operatii deoarece ultimul caracter din sir va avea indexul len - 1, nu len), se muta 
+in bl (nu in ebx (care are 32 biti), ci in bl (care are 8 biti), intrucat un char este
+reprezentat pe un octet) valoarea de la indexul curent a sirului plaintext, apoi se 
+realizeaza operatia xor intre plaintext[i] (salvata in bl) si key[len - i - 1], 
+rezultatul careia va ramane tot in bl, apoi se muta in ciphertext[i] valoarea obtinuta
+si retinuta in bl. Creste indexul (eax), apoi, daca nu s-au terminat de parcurs sirurile
+(ecx nu e 0), se continua bucla. Altfel, se iese din functie. 
+
+
+ages:
+
+Se initializeaza eax cu 0; eax va fi indicele cu ajutorul caruia se va parcurge
+vectorul de zile de nastere. ebx se reseteaza (initializeaza cu 0); acesta va fi 
+folosit pentru a retine diferite valori. 
+Cat timp nu s-a terminat parcurgerea vectorului (care se termina cand indicele eax 
+va deveni egal cu edx (= len = lungimea vectorului), se realizeaza urmatoarele operatii,
+definite in cadrul unor etichete:
+
+while_year: Se retine in ebx valoarea anului curent, apoi se muta in vectorul de varste
+(la indexul curent) acest an. ebx va lua apoi valoarea anului din data de la indexul 
+curent din vectorul de dati. Se scade din vectorul de varste (de la indexul
+curent) aceasta valoare din ebx, adica in all_ages[i] se va muta rezultatul 
+scaderii (an curent) - (anul nasterii). Daca rezultatul acestei scaderi este mai mare 
+sau egal cu 0, se trece mai departe pentru a verifica lunile (in while_month). Altfel, 
+daca rezultatul este negativ, (insemnand ca anul nasterii este dupa anul prezent)
+atunci se va scrie in all_ages[i] 0, dupa care se va trece in go_next pentru a trece la 
+urmatoarea iteratie.
+
+while_month: Se reseteaza ebx intrucat va fi folosit doar bx (deoarece in acesta se va 
+salva o valoare short, adica pe 2 octeti, bx avand 16 biti). Se muta in bx valoarea 
+lunii nasterii din data de la indexul curent din vectorul de dati. Se compara aceasta
+luna cu luna curenta: in caz de egalitate se trece in while_day pentru a verifica 
+zilele; daca luna nasterii este mai mare decat cea curenta, adica nu s-au implinit 
+inca anii, trebuie scazut 1 din vectorul de varste de la iteratia curenta (trecand 
+in sub_1); altfel (daca luna nasterii este mai mica decat luna curenta), anii au 
+fost impliniti si nu mai trebuie modificat nimic, deci se trece la urmatoarea 
+iteratie, in go_next. 
+
+while_day: Se reseteaza ebx intrucat va fi folosit doar bx (deoarece in acesta se va 
+salva o valoare short, adica pe 2 octeti, bx avand 16 biti). Se muta in bx valoarea 
+zilei nasterii din data de la indexul curent din vectorul de dati. Se compara aceasta
+zi cu ziua curenta: daca ziua nasterii este mai mare decat cea curenta, adica nu s-au 
+implinit inca anii, trebuie scazut 1 din vectorul de varste de la iteratia curenta (trecand 
+in sub_1); altfel (daca ziua nasterii este mai mica sau egala cu ziua curenta), anii au 
+fost impliniti si nu mai trebuie modificat nimic, deci se trece la urmatoarea 
+iteratie, in go_next. 
+
+sub_1: Daca valoarea varstei de la indexul curent din vectorul de varste este 0, 
+atunci nu se modifica nimic si se trece la urmatoarea iteratie, in go_next. Altfel, 
+se scade 1 din aceasta varsta.
+
+go_next: creste indexul (eax) cu 1, apoi se verifica daca acesta a ajuns egal cu lungimea 
+vectorului de dati (edx), caz in care se termina functia. Daca eax nu este inca egal cu 
+edx, se trece in while_year pentru a continua algoritmul pentru urmatoarea iteratie. 
+
+
+columnar:
+
+Se initializeaza ecx si eax cu 0; ecx va fi indicele cu ajutorul caruia se va parcurge
+vectorul de ordine, iar eax va fi indicele cu ajutorul caruia se va parcurge sirul in 
+care se va retine rezultatul, ciphertext
+Cat timp nu s-a terminat parcurgerea vectorului de ordine (care se termina cand indicele 
+ecx va deveni egal cu len_cheie), se realizeaza urmatoarele operatii: In edx se retine, 
+initial, valoarea curenta din vectorul de ordine; acest edx va fi folosit pentru a trece 
+prin coloana respectiva valorii din vectorul de ordine (adaugand lungimea cheii pentru a 
+trece la urmatoarea valoare de pe coloana). Se realizeaza "push ecx" pentru a putea 
+folosi din nou registrul ecx (deoarece sunt folosite toate registrele). Apoi, cat timp 
+nu s-a terminat parcurgerea coloanei (care se termina cand edx (folosit ca un index pentru 
+a obtine valoarea din haystack de la acest index) ajunge sa fie egal sau mai mare decat 
+lungimea sirului haystack, adica s-au depasit limitele sirului) se realizeaza urmatoarele:
+in cl se retine valoarea din haystack de la indexul calculat in edx, aceasta valoare 
+urmand a fi mutata in sirul rezultat ciphertext la indexul corespunzator eax; se aduna 
+la edx lungimea cheii pentru a obtine indexul urmator corespunzator parcurgerii pe 
+coloana, iar eax, indexul corespunzator parcurgerii sirului rezultat, creste cu 1. In 
+momentul terminarii parcurgerii coloanei (se iese din bucla while_column) se realizeaza
+"pop ecx" pentru a recupera valoarea ecx reprezentand indexul parcurgerii vectorului de
+ordine care apoi va fi incrementat cu 1. Algoritmul va continua, trecand in while_key 
+pana cand ecx va ajunge egal cu lungimea cheii, adica a fost parcurs tot vectorul de 
+ordine.
+
+
+cache:
+
+Se realizeaza operatia "push eax" pentru a retine in eax adresa unde va trebui scris 
+rezultatul si pentru a putea folosi acest registru (necesar, de exemplu, in cadrul 
+operatiei "mul"). Se muta in esi adresa octetului care va fi scris in registru, si se 
+calculeaza tag-ul (in edx) si offset-ul (in esi) astfel: pentru a calcula tagul se 
+shifteaza adresa la dreapta cu OFFSET_BITS (3), astfel "taind" cei 3 biti de la final;
+pentru a calcula offset-ul se shifteaza adresa la stanga cu TAG_BITS (29), ajungandu-se 
+la <offset>000...; pentru a muta cei 3 biti reprezentand offset-ul la final (pentru ca 
+acestia sa reprezinte cei mai nesemnificativi biti), se shifteaza rezultatul obtinut 
+la dreapta cu TAG_BITS (29). Se realizeaza operatia "push esi" pentru a retine valoarea 
+offset-ului si a o relua mai tarziu, astfel putand fi folosit registrul esi drept un 
+indice cu ajutorul caruia se va itera prin vectorul tags (acest indice va lua valori 
+de la 0 la CACHE_LINES (100)). Astfel, se initializeaza esi cu 0. Cat timp esi este mai 
+mic decat CACHE_LINES, se compara valoarea tag-ului calculat cu valoarea din tags de 
+la indicele curent. Daca este gasit acest tag in tags, se trece in write_reg, altfel 
+se incrementeaza indicele (esi) si se continua bucla pana acesta ajunge egal cu 
+CACHE_LINES. 
+
+In cazul in care tag-ul calculat a fost gasit in tags, se trece direct in write_reg 
+pentru a scrie in registru octetul de la adresa data. Aceasta se realizeaza astfel:
+se muta in eax CACHE_LINE_SIZE (8) pentru a realiza inmultirea CACHE_LINE_SIZE * i
+(i reprezentand linia pe care a fost gasit tag in tags). Astfel, se va retine in 
+eax indicele cu ajutorul caruia se va prelua din matricea cache valoarea dorita 
+(cache[i][offset] == cache[i * CACHE_LINE_SIZE + offset]). Dupa realizarea 
+inmultirii CACHE_LINE_SIZE * i se realizeaza "pop esi" pentru a relua in esi 
+valoarea offset-ului, apoi eax va deveni i * CACHE_LINE_SIZE + offset. Acest indice 
+calculat se muta in ebx (in eax trebuie returnat rezultatul), realizandu-se "pop 
+eax" pentru ca eax sa devina adresa unde va fi scris rezultatul, dupa ce acesta a 
+fost modificat. Se muta in edx octetul din cache[i][offset] (accesat cu ajutorul 
+indicelui calculat in ebx), apoi se scrie la adresa eax acest octet obtinut. 
+
+In cazul in care nu exista in tags tag-ul calculat, se realizeaza urmatoarele 
+inainte de a trece in write_reg si a scrie registrul: scrie in vectorul tags 
+la linia to_replace tag-ul calculat, apoi shifteaza la stanga acest tag (din edx)
+cu OFFSET_BITS (3) pentru a adauga "000" la sfarsitul acestuia. Se initializeaza
+ebx cu 0; acesta va fi folosit drept indice cu ajutorul caruia se va itera prin 
+linia cache[to_replace]. Se realizeaza "push edx" deoarece se va realiza operatia 
+"mul" care va modifica edx in 0 (operanzii inmultirii sunt pe 32 de biti, insa 
+rezultatul acestei inmultiri va incapea in eax, nefiind nevoie de registrul edx,
+cea mai mare valoare posibila in urma inmultirii fiind 8 * 99, valoare ce "incape"
+pe 32 de biti, deci in eax). Astfel, in eax se muta CACHE_LINE_SIZE pentru a 
+realiza inmultirea CACHE_LINE_SIZE * to_replace (eax va reprezenta indicele cu 
+ajutorul caruia se va obtine valoarea de la cache[to_replace][k], k luand valori 
+de la 0 la CACHE_LINE_SIZE, k == ebx). Se realizeaza apoi "pop edx" pentru a recupera 
+valoarea din edx. Apoi, cat timp ebx e mai mic decat CACHE_LINE_SIZE, se realizeaza
+urmatoarele: se realizeaza "push eax" pentru a retine rezultatul inmultirii 
+CACHE_LINE_SIZE * to_replace (pentru a nu face aceasta inmultire la fiecare 
+iteratie), apoi adauga la acesta indexul din ebx (eax va deveni 
+CACHE_LINE_SIZE * to_replace + k); se realizeaza "push ebx" pentru a retine 
+valoarea indicelui si pentru a folosi registrul ebx astfel: in ebx se muta 
+valoarea octetului de la adresa salvata in edx, adica tag + "000" + k, apoi se
+scrie in cache[to_replace][k] acest octet. Se reiau valorile din eax si ebx 
+prin "pop eax" si "pop ebx", iar edx este incrementat cu 1 (se vor scrie cei 8 octeti 
+de la adrese consecutive, incepand cu tag + "000"). ebx (indexul) creste cu 1, 
+apoi se verifica daca s-a terminat parcurgerea liniei cache[to_replace]. 
+In cazul de CACHE MISS, adica tag nu a fost gasit in vectorul tags, algoritmul 
+de scriere a registrului este acelasi, in acest caz i fiind to_replace, intrucat 
+octetul ce trebuie scris va fi luat de la linia to_replace (cache[i][offset] -> 
+cache[to_replace][offset]).
